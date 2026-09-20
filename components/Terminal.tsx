@@ -37,60 +37,6 @@ const dim = esc("2");
 const reset = esc("0");
 
 
-const boot : {
-    text: string; delay: number 
-} [] = [
-    {text : "BLACKWOOD PROPERTY MANAGEMENT LTD.", delay:0},
-    {text : "Building Management System v2.2.1 [i386]", delay:60},
-    {text : "", delay:120},
-    {text : "Loading subsystems.......", delay:200},
-    {text : " sensor array          11 zones        [OK]", delay:100},
-    {text : " camera feeds          11 / 11         [OK]", delay:80},
-    {text : " electromagnetic locks                 [OK]", delay:80},
-    {text : " motion grid                           [OK]", delay:80},
-    {text : " emergency protocol    ARMED           [OK]", delay:120},
-    {text : "", delay:160},
-    {text : "Shift log started    03:47:01", delay:0},
-    {text : "Operator: MAINT-7      Station: Basement", delay:60},
-    {text : "", delay:200},
-    {text : "_______________________________________________", delay:0},
-    {text : "", delay:80},
-    {text : " [03:47:04]    Passive sweep complete. Clear.", delay:100},
-    {text : " [03:47:11]    Roof sensor: single read.", delay:900},
-    {text : "               Source unknown. Logging.", delay:200},
-    {text : "               Flagged wildlife. Auto-reset.", delay:600},
-    {text : "", delay:400},
-    {text : "_______________________________________________", delay:0},
-    {text : "", delay:300},
-    {text : `   Type HELP for command list.`, delay:0},
-    {text : "", delay:200},
-];
-
-
-const ambient: Record<Phase, string[]> = {
-    boot: [],
-    normal: [
-        "   [passive] All zones clear.",
-        "   [passive] Motion grid nominal.",
-        "   [passive] Camera sweep: no anomalies.",
-        "   [passive] Stairwell 5F - brief read. Reset.",
-        "   [passive] Lock integrity: all nominal.",
-    ],
-    awareness: [
-        "   [04:02] Upper floor sensors logging intermittent reads.",
-        "   [04:06] Hallway 4F camera - single from corruption.",
-        "   [04:09] Motion on stairwell 3F. Duration: 0.4",
-        "   [04:12] Camera feed stable. Motion log still open.",
-        "   [04:17] Something moved on floor 4. Pattern abnormal.",
-    ],
-    hunt: [
-        "   !! Active motion - multiple zones",
-        "   !! Verify door status now",
-        "   !! Camera feeds degrading",
-        "   !! Proximity threshold exceeded",
-    ], ending: [],
-};
-
 
 export default function TerminalComponent() {
     const containerRef = useRef<HTMLDivElement>(null);
