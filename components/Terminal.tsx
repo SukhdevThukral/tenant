@@ -6,16 +6,15 @@ import { FitAddon } from "xterm-addon-fit";
 import "xterm/css/xterm.css";
 import {
     GameState,
-    BUILDING,
     createInitialState,
-    bfsPath,
     currentPhase,
     Phase,
 } from '@/lib/gameState';
 
 import {tick_ms, FG, doTick} from "@/lib/gameEngine";
+
 import { runCommand } from "@/lib/commands";
-import { boot } from "@/lib/narrative";
+import { boot,breachLines, lose_lines } from "@/lib/narrative";
 
 
 const esc = (code: string) => `\x1b[${code}m`;
@@ -24,6 +23,24 @@ const yellow = esc("33");
 const reset = esc("0");
 
 
+function triggerGlitch(el: HTMLElement | null, type: "soft" | "mid" | "hard") {
+    if (!el) return;
+
+    el.classList.remove("glitch-soft", "glitch-mid", "glitch-hard");
+
+    void el.offsetWidth;
+
+    el.classList.add(`glitch-${type}`);
+
+    const dur = type === "hard" ? 700 : type === "mid" ? 500 : 4000;
+    setTimeout(() => el.classList.remove(`glitch-${type}`), dur);
+}
+
+function setHuntMode(el: HTMLElement | null, on: boolean) {
+    if (!el) return;
+    if (on) el.classList.add("hunt");
+    else el.classList.remove("hunt");
+}
 
 export default function TerminalComponent() {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -141,6 +158,7 @@ export default function TerminalComponent() {
 
         const fitAddon = new FitAddon();
         term.loadAddon(fitAddon);
+        if (!containerRef.current) return;
         term.open(containerRef.current!);
         fitAddon.fit();
         termRef.current = term;
@@ -164,8 +182,9 @@ export default function TerminalComponent() {
             }
         });
 
-        const handleResize = () => fitAddon.fit();
+        const handleResize = () => requestAnimationFrame(() => fitAddon.fit());
         window.addEventListener("resize", handleResize);
+        requestAnimationFrame(() => runBoot());
 
         return () => {
             window.removeEventListener("resize", handleResize);
