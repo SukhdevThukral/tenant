@@ -60,3 +60,84 @@ function cmdCameraList(state: GameState): CmdResult {
     lines.push("", "    cam <zone_id>   to view feed");
     return {lines};
 }
+
+function cmdCameraView(zoneId: string, state: GameState): CmdResult {
+    const zone = BUILDING[zoneId];
+    if (!zone) return {lines: [`    No camera for zone: ${zoneId}`]};
+
+    if (state.deadCameras.has(zoneId)) {
+        return {
+            lines: [
+                `   CAM-${zoneId.toUpperCase()} ─────────────────────────────`,
+                "   ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░",
+                "   ░░░░░░  NO SIGNAL TO BE FOUND ░░░░░░",
+                "   ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░",
+                "   ░░░ ERROR   ░░░░░░░░░░░░░░░░░░░░░░░░",
+                "   ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░",
+                "",
+            ],
+        };
+    }
+
+    if (state.entityZone === zoneId) {
+        return {
+            lines: [
+                `   CAM-${zoneId.toUpperCase()} / ${zone.name}  ─────────────────────────────`,
+                "   __________________________________",
+                "  |                                  |",
+                "  |                                  |",
+                "  |   something is in frame          |",
+                "  |                                  |",
+                "  |          it is not moving        |",
+                "  |                                  |",
+                "  |                                  |",
+                "   ----------------------------------",
+                "   !! MOTION CONFIRMED",
+                "",
+            ],
+        };
+    }
+
+    return {
+        lines: [
+            `   CAM-${zoneId.toUpperCase()} / ${zone.name}  ─────────────────────────────`,
+            "   __________________________________",
+            "  |                                  |",
+            "  |            [clear]               |",
+            "  |                                  |",
+            "   ----------------------------------",
+            "",
+        ],
+    };
+}
+
+function cmdMap(state: GameState): CmdResult {
+    const e = (id: string): string => {
+        if (state.entityZone === id) return " E ";
+        if (state.playerZone === id) return "[Y]";
+        if (state.lockedDoors.has(id)) return "███";
+        if (state.deadCameras.has(id)) return "░░░";
+        return "    ";
+    };
+
+    return {
+        lines: [
+            "   E=entity Y=you ███=locked ░░░=dead cam",
+            "   _______________________________________",
+            `   F5 [${e("roof")}ROOF        ]-[${e("stairwelll_5")}STAIR-5F]`,
+            `                               |`,
+            `   F4          [${e("hallway_4")}HALL-4F]-[${e("office_4a")}OFFICE-4A]`,
+            `                               |`,
+            `   F3          [${e("stairwell_3")}STAIR-3F]`,
+            `                               |`,
+            `   F2  [${e("storage_2a")}STORAGE-2A]-[${e("hallway_2")}HALL-2F]`,
+            `                               |`,
+            `   F1          [${e("stairwell_1")}STAIR-1F]-[${e("lobby")}LOBBY   ]`,
+            `                                            |`,
+            `   B0                          [${e("basement_stair")}BSTAIR   ]`,
+            `                                            |`,
+            `   B1                          [${e("basement")}BASEMENT]  <-  you`,
+            "",
+        ],
+    };
+}
