@@ -1,10 +1,46 @@
-import { stat } from "fs";
 import { GameState, BUILDING, bfsPath, distanceTo, currentPhase } from "./gameState";
 
 export type CmdResult = {
     lines: string[];
     stateChanges?:Partial<GameState>;
 };
+
+export function runCommand(input: string, state: GameState): CmdResult {
+    const raw = input.trim().toLowerCase();
+    const [cmd, ...args] = raw.split(/\s+/);
+
+    switch(cmd) {
+        case "status":
+        case "stat":
+            return cmdStatus(state);
+        case "scan":
+        case "motion":
+            return cmdScan(state);
+        case "cameras":
+        case "cam":
+            if (!args[0] || args[0] === "list") return cmdCameraList(state);
+            return cmdCameraView(args.join("_"), state);
+        case "map":
+            return cmdMap(state);
+        case "doors":
+            return cmdDoors(state);
+        case "lock":
+            if (!args[0]) return {lines : ["Usage: lock <zone_id>"]};
+            return cmdLock(args.join("_"), state);
+        case "unlock":
+            if (!args[0]) return {lines: ["Usage: unlock <zone_id>"]};
+            return cmdUnlock(args.join("_"), state);
+        case "help":
+        case "?":
+            return cmdHelp();
+        case "ping":
+            return { lines: ["pong"]};
+        case "":
+            return{lines: []};
+        default:
+            return {lines: [`Unknown command: '${input}'. Type HELP for list`]};
+    }
+}
 
 
 function cmdStatus(state: GameState): CmdResult {
