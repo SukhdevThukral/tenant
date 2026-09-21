@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import "xterm/css/xterm.css";
@@ -9,31 +9,18 @@ import {
     BUILDING,
     createInitialState,
     bfsPath,
-    distanceTo,
     currentPhase,
     Phase,
-} from '@/lib/gameState'
+} from '@/lib/gameState';
 
-const tick_ms: Record<Phase, number> = {
-    boot: 99999,
-    normal: 7000,
-    awareness: 4500,
-    hunt: 2800,
-    ending: 0,
-};
+import {tick_ms, FG, doTick} from "@/lib/gameEngine";
+import { runCommand } from "@/lib/commands";
+import { boot } from "@/lib/narrative";
 
-const FG: Record<string, string> = {
-    normal: "#4dff91",
-    awareness: "#ffb347",
-    hunt: "#ff4444",
-    ending: "#ff4444",
-    win: "#7ecfed"
-}
 
 const esc = (code: string) => `\x1b[${code}m`;
 const red = esc("31");
 const yellow = esc("33");
-const dim = esc("2");
 const reset = esc("0");
 
 
