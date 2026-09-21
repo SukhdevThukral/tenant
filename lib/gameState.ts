@@ -17,7 +17,6 @@ export interface GameState {
     playerZone: string;
     lockedDoors: Set<string>;
     deadCameras: Set<string>;
-    inputBuffer: string;
     gameOver: boolean;
     gameWon: boolean;
 }
@@ -47,7 +46,6 @@ export function createInitialState(): GameState {
         playerZone: PLAYER_ZONE,
         lockedDoors: new Set(),
         deadCameras: new Set(),
-        inputBuffer: "",
         gameOver: false,
         gameWon: false,
     };
