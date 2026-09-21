@@ -141,3 +141,70 @@ function cmdMap(state: GameState): CmdResult {
         ],
     };
 }
+
+function cmdDoors(state: GameState): CmdResult {
+    const lines = ["    DOOR STATUS", " ________________________________"];
+    for (const zone of Object.values(BUILDING)) {
+        const locked = state.lockedDoors.has(zone.id);
+        lines.push(`    ${locked ? "[LOCKED]" : "[open]  "} ${zone.id.padEnd(20)} ${zone.name}`);
+    }
+    lines.push("", "    lock <zone_id> / unlock <zone_id>");
+    return { lines };
+}
+
+function cmdLock(zoneId: string, state: GameState): CmdResult {
+    const zone = BUILDING[zoneId];
+    if (!zone)  return {lines: [`   Zone not found: ${zoneId}. Try DOORS for list.`]};
+    if (state.lockedDoors.has(zoneId)) return { lines: [`   ${zone.name} - already locked.`]};
+    if (zoneId === state.playerZone) return { lines: [` Cant lock your own position.`]};
+
+    const newLocked = new Set(state.lockedDoors);
+    newLocked.add(zoneId);
+
+    const blocking = bfsPath(state.entityZone, state.playerZone).includes(zoneId);
+
+    return {
+        lines : [
+            `   LOCK ${zone.name}  - engaged`,
+            ...(blocking ? [`   This is on its current path`] : []),
+        ],
+        stateChanges: {lockedDoors: newLocked},
+    };
+}
+
+function cmdUnlock(zoneId: string, state: GameState): CmdResult {
+    const zone = BUILDING[zoneId];
+    if (!zone) return {lines: [`    Zone not found: ${zoneId}.`]};
+    if (!state.lockedDoors.has(zoneId)) return {lines: [`    ${zone.name} - not found`]};
+    
+    const newLocked = new Set(state.lockedDoors);
+    newLocked.delete(zoneId);
+
+    return {
+        lines: [`   UNLOCK  ${zone.name}  - released`],
+        stateChanges: {lockedDoors: newLocked},
+    };
+}
+
+function cmdHelp(): CmdResult {
+    return {
+        lines: [
+            "   COMMANDS",
+            "   __________________________________________________________",
+            "   status                          System Overview",
+            "   scan                            Motion sweep, all zones",
+            "   cameras                         Camera feed list",
+            "   cam <zone_id>                   View a specific feed",
+            "   map                             Building layout",
+            "   doors                           Door lock status",
+            "   lock <zone_id>                  Engage lock",
+            "   unlock <zone_id>                Release lock",
+            "",
+            "   Zone IDs:",
+            "   roof stairwell_5  hallway_4  office_4a",
+            "   stairell_3  hallway_2  storage_2a  stairwell_1",
+            "   lobby   basement_stair  basement",
+            "",
+        ],
+    };
+}
