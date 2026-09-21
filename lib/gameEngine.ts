@@ -1,4 +1,3 @@
-import next from "next";
 import { GameState, BUILDING, bfsPath, distanceTo, currentPhase, Phase } from "./gameState";
 import { entityMoveLOG, ambient, win_lines, lose_lines } from "./narrative";
 
