@@ -28,6 +28,99 @@ const reset = esc("0");
 export default function TerminalComponent() {
     const containerRef = useRef<HTMLDivElement>(null);
     const termRef = useRef<Terminal | null>(null);
+    const fitRef = useRef<FitAddon | null>(null);
+    const stateRef = useRef<GameState>(createInitialState());
+    const inputRef = useRef<string>("");
+    const tickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const ambientIdxRef = useRef<Record<Phase, number>>({
+        boot: 0, normal: 0, awareness: 0, hunt: 0, ending: 0,
+    });
+    const bootDoneRef = useRef(false);
+
+    const wl = (text = "") => termRef.current?.writeln(text);
+    const w = (text = "") => termRef.current?.write(text);
+
+    const applyTheme = useCallback((phase: Phase | "win") => {
+        const fg = FG[phase] ?? FG.normal;
+        if (termRef.current) {
+            termRef.current.options.theme = {
+                ...termRef.current.options.theme,
+                foreground: fg,
+                cursor: fg,
+            };
+        }
+    }, []);
+
+    const showPrompt = useCallback(() => {
+        const phase = currentPhase(stateRef.current);
+        const col = phase === "hunt" || phase === "ending" ? red : phase === "awareness" ? yellow : "";
+        w(`${col}>${reset}`);
+    }, []);
+
+    const interruptPrint = useCallback((lines: string[]) => {
+        const buf = inputRef.current;
+        w("\r\x1b[K");
+        lines.forEach((l) => wl(l));
+        showPrompt();
+        w(buf);
+    }, [showPrompt]);
+
+    const scheduleTick = useCallback(() => {
+        if (tickTimerRef.current) clearTimeout(tickTimerRef.current);
+        const phase = currentPhase(stateRef.current);
+        tickTimerRef.current = setTimeout(runTick, tick_ms[phase] ?? 7000);
+    }, []);
+
+    const runTick = useCallback(() => {
+        const state = stateRef.current;
+        if (!bootDoneRef.current || state.gameOver || state.gameWon) return;
+        
+        const {newState, linesToPrint, outcome} = doTick(state, ambientIdxRef.current);
+        stateRef.current = newState;
+
+        if (linesToPrint.length) interruptPrint(linesToPrint);
+
+        if(outcome === "win") {applyTheme("win"); return;}
+        if (outcome === "lose") return;
+
+        applyTheme(currentPhase(newState));
+        scheduleTick();
+    }, [interruptPrint, applyTheme, scheduleTick]);
+
+    const handleEnter = useCallback(() => {
+        const input = inputRef.current;
+        inputRef.current = "";
+        wl("");
+
+        const state = stateRef.current;
+        if (state.gameOver || state.gameWon) {
+            wl("  Session Terminated.");
+            showPrompt();
+            return;
+        }
+
+        const {lines, stateChanges} = runCommand(input, state);
+        if(stateChanges) stateRef.current = { ...stateRef.current, ...stateChanges};
+        lines.forEach((l) => wl(l));
+        showPrompt();
+    }, [showPrompt]);
+
+    const runBoot = useCallback(async () => {
+        const term = termRef.current;
+        if (!term) return;
+
+        let ms = 0;
+        for (const {text, delay} of boot) {
+            ms += delay;
+            await new Promise<void>((r) => setTimeout(r, ms));
+            term.writeln(text);
+        }
+
+        bootDoneRef.current = true;
+        stateRef.current = {...stateRef.current, phase: "normal"};
+        showPrompt();
+        scheduleTick();
+    }, [showPrompt, scheduleTick]);
 
     useEffect(() => {
         const term = new Terminal({
@@ -36,11 +129,14 @@ export default function TerminalComponent() {
             fontFamily: "Courier New, monospace",
             theme: {
                 background: "#000000",
-                foreground: "#ff3333",
-                cursor: "#ff3333",
+                foreground: FG.normal,
+                cursor: FG.normal,
+                selectionBackground: "#4dff9133",
             },
             cols: 80,
-            rows: 24,
+            rows: 30,
+            scrollback: 600,
+            convertEol: true,
         });
 
         const fitAddon = new FitAddon();
@@ -49,22 +145,21 @@ export default function TerminalComponent() {
         fitAddon.fit();
         termRef.current = term;
 
-        term.writeln("BLACKWOOD BUILDING MANAGEMENT SYSTEM v2.2.1");
-        term.writeln("_____________________________________________")
-        term.writeln("");
-        term.writeln("All systems nominal.");
-        term.writeln("Graveyard shift log started - 00:00:01");
-        term.writeln("");
-        term.write("> ");
-
         term.onKey(({key, domEvent}) => {
+            if (!bootDoneRef.current) return;
+            const state = stateRef.current;
+            if (state.gameOver || state.gameWon) return;
+
             const printable = !domEvent.altKey && !domEvent.ctrlKey && !domEvent.metaKey;
             if (domEvent.key === "Enter") {
-                term.writeln("");
-                term.write("> ");
+                handleEnter();
             } else if (domEvent.key === "Backspace") {
-                term.write("\b \b");
-            } else if (printable) {
+                if (inputRef.current.length > 0) {
+                    inputRef.current = inputRef.current.slice(0, -1);
+                    term.write("\b \b");
+                }
+            } else if (printable && key.length === 1) {
+                inputRef.current += key;
                 term.write(key);
             }
         });
@@ -74,9 +169,10 @@ export default function TerminalComponent() {
 
         return () => {
             window.removeEventListener("resize", handleResize);
+            if (tickTimerRef.current) clearTimeout(tickTimerRef.current);
             term.dispose();
         };
-    }, []);
+    }, [handleEnter, runBoot]);
 
     return (
         <div ref={containerRef} style={{width: "100vw", height: "100vh", padding: "1rem"}}/>
