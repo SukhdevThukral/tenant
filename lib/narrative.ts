@@ -1,7 +1,7 @@
 import { Phase } from "./gameState";
 import { BUILDING } from "./gameState";
 
-const boot : {
+export const boot : {
     text: string; delay: number 
 } [] = [
     {text : "BLACKWOOD PROPERTY MANAGEMENT LTD.", delay:0},
@@ -31,7 +31,7 @@ const boot : {
 ];
 
 
-const ambient: Record<Phase, string[]> = {
+export const ambient: Record<Phase, string[]> = {
     boot: [],
     normal: [
         "   [passive] All zones clear.",
