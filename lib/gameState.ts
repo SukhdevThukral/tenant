@@ -19,19 +19,21 @@ export interface GameState {
     deadCameras: Set<string>;
     inputBuffer: string;
     gameOver: boolean;
+    gameWon: boolean;
 }
 
 export const BUILDING: Record<string, SensorZone> = {
     roof: {id: "roof", name: "Rooftop", floor: 5, locked: false, motionDetected: false, cameraOnline: true, adjacentTo: ["stairwell_5"] },
     stairwell_5: {id: "stairwell_5", name: "Stairwell 5F", floor: 5, locked: false, motionDetected: false, cameraOnline: true, adjacentTo: ["roof", "hallway_4"] },
-    hallway_4: {id: "hallway_4", name: "Hallway 4F", floor: 4, locked: false, motionDetected: false, cameraOnline: true, adjacentTo: ["stairwell_5", "room_4a", "stairwell_3"] },
-    room_4a: {id: "room_4a", name: "Room 4A", floor: 4, locked: false, motionDetected: false, cameraOnline: true, adjacentTo: ["hallway_4"] },
+    hallway_4: {id: "hallway_4", name: "Hallway 4F", floor: 4, locked: false, motionDetected: false, cameraOnline: true, adjacentTo: ["stairwell_5", "office_4a", "stairwell_3"] },
+    office_4a: {id: "office_4a", name: "Office 4A", floor: 4, locked: false, motionDetected: false, cameraOnline: true, adjacentTo: ["hallway_4"] },
     stairwell_3: {id: "stairwell_3", name: "Stairwell 3F", floor: 3, locked: false, motionDetected: false, cameraOnline: true, adjacentTo: ["hallway_4", "hallway_2"] },
-    hallway_2: {id: "hallway_2", name: "Hallway 2F", floor: 2, locked: false, motionDetected: false, cameraOnline: true, adjacentTo: ["stairwell_3", "room_2a", "stairwell_1"] },
-    room_2a: {id: "room_2a", name: "Room 2A", floor: 2, locked: false, motionDetected: false, cameraOnline: true, adjacentTo: ["hallway_2"] },
+    hallway_2: {id: "hallway_2", name: "Hallway 2F", floor: 2, locked: false, motionDetected: false, cameraOnline: true, adjacentTo: ["stairwell_3", "storage_2a", "stairwell_1"] },
+    storage_2a: {id: "storage_2a", name: "Storage 2A", floor: 2, locked: false, motionDetected: false, cameraOnline: true, adjacentTo: ["hallway_2"] },
     stairwell_1: {id: "stairwell_1", name: "Stairwell 1F", floor: 1, locked: false, motionDetected: false, cameraOnline: true, adjacentTo: ["hallway_2", "lobby"] },
-    lobby: {id: "lobby", name: "Lobby", floor: 1, locked: false, motionDetected: false, cameraOnline: true, adjacentTo: ["stairwell_1", "basement"] },
-    basement: {id: "basement", name: "basement", floor: 0, locked: false, motionDetected: false, cameraOnline: true, adjacentTo: ["lobby"] },
+    lobby: {id: "lobby", name: "Lobby", floor: 1, locked: false, motionDetected: false, cameraOnline: true, adjacentTo: ["stairwell_1", "basement_stair"] },
+    basement_stair: {id: "basement_stair", name: "Basement Stairwell", floor: 0, locked: false, motionDetected: false, cameraOnline: true, adjacentTo: ["lobby", "basement"] },
+    basement: {id: "basement", name: "Basement / Maintenance", floor: 0, locked: false, motionDetected: false, cameraOnline: true, adjacentTo: ["basement_stair"] },
 }
 
 export const PLAYER_ZONE = "basement";
@@ -47,6 +49,7 @@ export function createInitialState(): GameState {
         deadCameras: new Set(),
         inputBuffer: "",
         gameOver: false,
+        gameWon: false,
     };
 }
 
