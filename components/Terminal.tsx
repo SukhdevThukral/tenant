@@ -22,6 +22,9 @@ const red = esc("31");
 const yellow = esc("33");
 const reset = esc("0");
 const bold = esc("1");
+const audio = new Audio("/ambient_music.mp3")
+audio.loop = true;
+audio.volume = 0.25;
 
 function triggerGlitch(el: HTMLElement | null, type: "soft" | "mid" | "hard") {
     if (!el) return;
@@ -75,10 +78,13 @@ export default function TerminalComponent() {
         const phase = currentPhase(stateRef.current);
         if (phase === "hunt" || phase === "ending") {
             w(`${red}${bold}!!${reset} `);
+            audio.volume = 0.7;
         } else if (phase === "awareness") {
             w(`${yellow}?>${reset} `);
+            audio.volume = 0.45
         } else {
             w(`> `);
+            audio.volume = 0.25
         }
     }, []);
 
@@ -173,6 +179,7 @@ export default function TerminalComponent() {
         stateRef.current = {...stateRef.current, phase: "normal"};
         showPrompt();
         scheduleTick();
+        audio.play()
     }, [showPrompt, scheduleTick]);
 
     useEffect(() => {
