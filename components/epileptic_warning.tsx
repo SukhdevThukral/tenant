@@ -66,6 +66,24 @@ export default function EpilepticWarning({onAccept}: Props) {
         }}>
             <canvas ref={canvasRef} style={{ position: "absolute", inset:0, pointerEvents: "none", zIndex: 1, mixBlendMode: "overlay",}}/>
             <div style={{position: "absolute", inset: 0, background: "repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.4) 3px, rgba(0,0,0,0.4) 4px)", pointerEvents: "none", zIndex:2,}}/>
+            <div style={
+                {
+                    position: "absolute", inset: 0, background: "radial-background(ellipse at center, transparent 40%, rgba(0,0,0,0.9) 100%)",
+                    pointerEvents: "none", zIndex: 3,
+                }
+            }/>
+            <div style={{position: "relative", zIndex: 10, maxWidth: 560, padding: "2.5rem",border:"1px solid #ff2222",
+                boxShadow: "0 0 30px #ff000044, inset 0 0 30px #ff000011", transform: glitching ? `translate(${(Math.random() - 0.5) * 12}px, ${(Math.random() - 0.5) * 6}px) skewX(${(Math.random() - 0.5) * 3}deg)` : "none",
+                transition: glitching ? "none" : " transform 0.05s", 
+            }}>
+                {glitching && (
+                    <>
+                        <div style={{position: "absolute", inset: "2.5rem", color: "#ff000088", fontSize: "0.85rem", lineHeight: 1.8, transform: "translate(-4px, 2px)", pointerEvents: "none", userSelect: "none", letterSpacing: "0.1em",}}>
+                            ❗❗ PHOTOSENSITIVITY WARNING ❗❗
+                        </div>
+                    </>
+                )}
+            </div>
         </div>
     )
 }
