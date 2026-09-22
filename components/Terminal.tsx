@@ -21,7 +21,7 @@ const esc = (code: string) => `\x1b[${code}m`;
 const red = esc("31");
 const yellow = esc("33");
 const reset = esc("0");
-
+const bold = esc("1");
 
 function triggerGlitch(el: HTMLElement | null, type: "soft" | "mid" | "hard") {
     if (!el) return;
@@ -44,6 +44,7 @@ function setHuntMode(el: HTMLElement | null, on: boolean) {
 
 export default function TerminalComponent() {
     const containerRef = useRef<HTMLDivElement>(null);
+    const crtRef = useRef<HTMLDivElement>(null);
     const termRef = useRef<Terminal | null>(null);
     const fitRef = useRef<FitAddon | null>(null);
     const stateRef = useRef<GameState>(createInitialState());
@@ -66,12 +67,19 @@ export default function TerminalComponent() {
                 cursor: fg,
             };
         }
+
+        setHuntMode(crtRef.current, phase === "hunt" || phase === "ending");
     }, []);
 
     const showPrompt = useCallback(() => {
         const phase = currentPhase(stateRef.current);
-        const col = phase === "hunt" || phase === "ending" ? red : phase === "awareness" ? yellow : "";
-        w(`${col}>${reset}`);
+        if (phase === "hunt" || phase === "ending") {
+            w(`${red}${bold}!!${reset} `);
+        } else if (phase === "awareness") {
+            w(`${yellow}?>${reset} `);
+        } else {
+            w(`> `);
+        }
     }, []);
 
     const interruptPrint = useCallback((lines: string[]) => {
@@ -95,12 +103,40 @@ export default function TerminalComponent() {
         const {newState, linesToPrint, outcome} = doTick(state, ambientIdxRef.current);
         stateRef.current = newState;
 
+        const phase = currentPhase(newState);
+
+        if(linesToPrint.some(l => l.includes("SIGNAL TERMINATED") || l.includes("OFFLINE"))) {
+            triggerGlitch(crtRef.current, "hard");
+        } else if (phase === "hunt") {
+            triggerGlitch(crtRef.current, "mid");
+        } else if (phase === "awareness") {
+            triggerGlitch(crtRef.current, "soft");
+        }
+
+        applyTheme(phase);
+
+        if(outcome === "win") {
+            if(linesToPrint.length) interruptPrint(linesToPrint);
+            applyTheme("win");
+            return;
+        }
+
+        if (outcome === "lose") {
+            w("\r\x1b[K");
+            let ms = 0;
+            for (const {text, delay} of breachLines){
+                ms += delay;
+                setTimeout(() => wl(text), ms);
+            }
+            ms += 800;
+            for (const line of lose_lines) {
+                ms += 120;
+                setTimeout(() => wl(line), ms);
+            }
+            return;
+        }
+
         if (linesToPrint.length) interruptPrint(linesToPrint);
-
-        if(outcome === "win") {applyTheme("win"); return;}
-        if (outcome === "lose") return;
-
-        applyTheme(currentPhase(newState));
         scheduleTick();
     }, [interruptPrint, applyTheme, scheduleTick]);
 
@@ -160,7 +196,7 @@ export default function TerminalComponent() {
         term.loadAddon(fitAddon);
         if (!containerRef.current) return;
         term.open(containerRef.current!);
-        fitAddon.fit();
+        requestAnimationFrame(() => fitAddon.fit());
         termRef.current = term;
 
         term.onKey(({key, domEvent}) => {
@@ -194,6 +230,8 @@ export default function TerminalComponent() {
     }, [handleEnter, runBoot]);
 
     return (
-        <div ref={containerRef} style={{width: "100vw", height: "100vh", padding: "1rem"}}/>
+        <div ref={crtRef} className="crt">
+            <div ref={containerRef} style={{width: "100%", height: "100%"}}/>
+        </div>
     );
 }
