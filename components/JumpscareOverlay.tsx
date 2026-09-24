@@ -59,33 +59,36 @@ export default function JumpscareOverlay({onEnd}: Props) {
     };
 
     return (
-        <div style={{position: "fixed", inset: 0, zIndex: 8000, background: "#000", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", animation: phase === "entering" ? "jumpIn 0.08s ease-out forwards" : "none",}}>
-            <div style={{position: "absolute", inset: 0, background: "repeating-linear-gradient(to bottom, transparent 0px, transparent 2px, rgba(0,0,0,0.35)", zIndex: 2, pointerEvents: "none"}}/>
-            <div style={{position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.8) 100%)", zIndex: 3, pointerEvents: "none",}}/>
-            {glitchClass && (
-                <div style={{
-                    position: "absolute",
-                    inset: 0,
-                    zIndex: 4, 
-                    pointerEvents: "none",
-                    mixBlendMode: "screen",
-                    background: glitchClass === "glitch-hard" ? "linear-gradient(90deg, #ff000022 0%, transparent 50%, #00ffff22 100%)" : "transparent",
-                }}/>
-            )}
-
+        <div style={{position: "fixed", inset: 0, zIndex: 8000, background: "rgba(0,0,0,0.75)", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", animation: phase === "entering" ? "jumpIn 0.08s ease-out forwards" : "none",}}>
             <NoiseCanvas/>
 
-            <video ref={videoRef} src="/donwload.mp4" style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0, zIndex: 1, transform: glitchClass === "glitch-hard" ?
-                `translate(${(Math.random() > 0.5 ? 1 : -1) * (Math.random() * 8 + 2)}px, ${(Math.random() - 0.5)*4}px) skewX(${(Math.random() - 0.5) * 2}deg)` : glitchClass === "glitch-js-mid" ? `translate(${(Math.random() - 0.5) * 6}px, 0)` : "none",
-                filter: glitchClass === "glitch-hard" ? "brightness(1.6) contrast(1.3) hue-rotate(-20deg)" : glitchClass === "glitch-js-mid" ? "brightness(1.2) contrast(1.1)" : "none", transition: "none",
-            }} muted={false} playsInline onEnded={handleVideoEnd}/>
+            <div style={{position: "relative", zIndex: 10, width: "min(520px, 90vw)", background: "#0a0a0a", border: "1px solid #ff4444", boxShadow: "0 0 0 1px #ff000033, 0 12px 60px #ff000066", animation: phase === "entering" ? "popIn 0.12s cubic-bezier(0.35,1.55,0.65,1) forwards":"none",
+                transform: glitchClass === "glitch-hard" ? `translate(${(Math.random() > 0.5 ? 1 : -1) * (Math.random() * 8 + 2)}px, ${(Math.random() - 0.5)*4}px) skewX(${(Math.random() - 0.5) * 2}deg)` : glitchClass === "glitch-js-mid" ? `translate(${(Math.random() - 0.5) * 6}px, 0)` : "none",
+            }}>
 
-            <style>{`
-                @keyframes jumpIn {
-                    from {transform: scale(1); opacity: 0;}
-                    to {transform: scale(1); opacity: 1;}
-                }
-            `}</style>
+                <div style={{background: "#1a0000", borderBottom: "1px solid #ff4444", padding: "6px 10px", display: "flex", alignItems: "center", gap: 8, fontFamily: "Courier New, monospace",}}>
+                    <div style={{width: 10, height: 10, borderRadius: "50%", background: "#ff3333"}}/>
+                    <div style={{width: 10, height: 10, borderRadius: "50%", background: "#333"}}/>
+                    <div style={{width: 10, height: 10, borderRadius: "50%", background: "#333"}}/>
+                    <span style={{color: "#ff4444", fontSize: 11, marginLeft: 6, letterSpacing: "0.1em"}}>CAM-BASEMENT / ARCHIVE FEED</span>
+                </div>
+
+                <div style={{position: "relative", background: "#000", aspectRatio:"16/9", overflow: "hidden"}}>
+                    <video ref={videoRef} src="/download.mp4" style={{
+                        width: "100%", height: "100%", objectFit: "cover", display: "block", filter: glitchClass === "glitch-hard" ? "brightness(1.6) contrast(1.4) hue-rotate(-20deg)" : glitchClass === "glitch-js-mid" ? "brightness(1.2) contrast(1)" : "none", transition: "none",
+                    }} muted={false} playsInline onEnded={handleVideoEnd}/>
+
+                    <div style={{position: "absolute", inset: 0, background: "repeating-linear-gradient(to bottom, transparent 0px, transparent 2px, rgba(0,0,0,0.35) 2px, rgba(0,0,0,0.36) 3px)", zIndex:2, pointerEvents: "none"}}/>
+                    <div style={{position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.8) 100%)", zIndex:3, pointerEvents: "none"}}/>
+                    
+                    {glitchClass && (
+                        <div style={{position: "absolute", inset:0, zIndex: 4, pointerEvents: "none", mixBlendMode: "screen",
+                            background: glitchClass === "glitch-hard" ? "linear-gradient(90deg, #ff000022  0%, transparent 50%, #00ffff22 100%)" : "transparent",
+                        }}/>
+                    )}
+                </div>
+            </div>
+
         </div>
     );
 }
