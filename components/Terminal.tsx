@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import "xterm/css/xterm.css";
@@ -9,13 +9,13 @@ import {
     createInitialState,
     currentPhase,
     Phase,
+    distanceTo,
 } from '@/lib/gameState';
-
+import JumpscareOverlay from "./JumpscareOverlay";
 import {tick_ms, FG, doTick} from "@/lib/gameEngine";
 
 import { runCommand } from "@/lib/commands";
 import { boot,breachLines, lose_lines } from "@/lib/narrative";
-
 
 const esc = (code: string) => `\x1b[${code}m`;
 const red = esc("31");
@@ -57,6 +57,9 @@ export default function TerminalComponent() {
         boot: 0, normal: 0, awareness: 0, hunt: 0, ending: 0,
     });
     const bootDoneRef = useRef(false);
+    const jumpscareShownRef = useRef(false);
+
+    const [showJumpscare, setShowJumpscare] = useState(false);
 
     const wl = (text = "") => termRef.current?.writeln(text);
     const w = (text = "") => termRef.current?.write(text);
@@ -121,6 +124,25 @@ export default function TerminalComponent() {
 
         applyTheme(phase);
 
+        const dist = distanceTo(newState.entityZone, newState.playerZone);
+        if (dist === 1 && !jumpscareShownRef.current && !newState.gameOver && !newState.gameWon) {
+            jumpscareShownRef.current = true;
+            const fakeLines = [
+                { text: "", delay:0},
+                { text: "   [03:58] !! MOTION - BASEMENT", delay: 0},
+                { text: "   [03:58] Pulling archived camera log...", delay: 600},
+                { text: "   [03:59] LOADING FEED ........", delay: 800},
+                { text: "", delay:400},
+            ];
+            w("\r\x1b[K");
+            let ms = 0;
+            for (const {text, delay} of fakeLines) {
+                ms += delay;
+                setTimeout(() => wl(text), ms);
+            }
+            setTimeout(() => setShowJumpscare(true), ms + 200);
+        }
+
         if(outcome === "win") {
             if(linesToPrint.length) interruptPrint(linesToPrint);
             applyTheme("win");
@@ -182,6 +204,14 @@ export default function TerminalComponent() {
         audio.play()
     }, [showPrompt, scheduleTick]);
 
+    const handleJumpscareEnd = useCallback(() => {
+        setShowJumpscare(false);
+        setTimeout(() => {
+            interruptPrint(["", "   !! FEED LOST - SIGNAL CORRUPTED", ""]);
+            scheduleTick();
+        }, 300);
+    }, [interruptPrint, scheduleTick]);
+
     useEffect(() => {
         const term = new Terminal({
             cursorBlink: true,
@@ -237,8 +267,11 @@ export default function TerminalComponent() {
     }, [handleEnter, runBoot]);
 
     return (
-        <div ref={crtRef} className="crt">
-            <div ref={containerRef} style={{width: "100%", height: "100%"}}/>
-        </div>
+        <>
+            <div ref={crtRef} className="crt">
+                <div ref={containerRef} style={{width: "100%", height: "100%"}}/>
+            </div>
+            {showJumpscare && <JumpscareOverlay onEnd={handleJumpscareEnd}/>}
+        </>
     );
 }
