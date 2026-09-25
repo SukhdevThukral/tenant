@@ -2,6 +2,9 @@
 
 _a web-based terminal-like horror game where youre alone in a building at 3am and something is moving through it_
 
+<br> 
+<img width="1103" height="602" alt="tenant_ss2" src="https://github.com/user-attachments/assets/2eac0e49-c8d0-4748-aacf-f88c721b01a9" />
+<br> <br> 
 
 
 ## what ts is
