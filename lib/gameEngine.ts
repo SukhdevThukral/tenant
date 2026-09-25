@@ -46,7 +46,7 @@ export function doTick(
 
         if(alts.length === 0) {
             return {
-                newState: {...state, currentTick: state.currentTick + 1},
+                newState: {...state, gameWon: true,currentTick: state.currentTick + 1},
                 linesToPrint: ["", "    Entity contained. All exits sealed.", "", ...win_lines],
                 outcome: "win",
             };
