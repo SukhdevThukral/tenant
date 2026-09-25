@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { audio } from "@/lib/audio";
+import { getAudio } from "@/lib/audio";
 
 interface Props {
     onAccept: () => void;
@@ -19,11 +19,13 @@ export default function EpilepticWarning({onAccept}: Props) {
     }, [])
 
     useEffect(() => {
+        const audio = getAudio();
+        if (!audio) return;
         audio.volume = 0;
         audio.play().catch(() => {});
 
         const fadeIn = setInterval(() => {
-            if (audio.volume < 0.25) {
+            if (audio.volume < 0.24) {
                 audio.volume = Math.min(0.26, audio.volume + 0.01);
             } else {
                 clearInterval(fadeIn);
