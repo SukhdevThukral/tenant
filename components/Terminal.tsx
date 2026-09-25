@@ -53,6 +53,7 @@ export default function TerminalComponent() {
     const inputRef = useRef<string>("");
     const tickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
     const bootStartedRef = useRef(false);
+    const [endScreen, setEndScreen] = useState<"win" | "lose" | null>(null);
 
     const ambientIdxRef = useRef<Record<Phase, number>>({
         boot: 0, normal: 0, awareness: 0, hunt: 0, ending: 0,
@@ -152,6 +153,7 @@ export default function TerminalComponent() {
         if(outcome === "win") {
             if(linesToPrint.length) interruptPrint(linesToPrint);
             applyTheme("win");
+            setTimeout(() => setEndScreen("win"), 3000)
             return;
         }
 
@@ -167,6 +169,7 @@ export default function TerminalComponent() {
                 ms += 120;
                 setTimeout(() => wl(line), ms);
             }
+            setTimeout(() => setEndScreen("lose"), ms+1000);
             return;
         }
 
