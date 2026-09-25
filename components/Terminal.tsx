@@ -17,7 +17,7 @@ import {tick_ms, FG, doTick} from "@/lib/gameEngine";
 import { runCommand } from "@/lib/commands";
 import { boot,breachLines, lose_lines } from "@/lib/narrative";
 
-import { audio } from "@/lib/audio";
+import { getAudio } from "@/lib/audio";
 
 const esc = (code: string) => `\x1b[${code}m`;
 const red = esc("31");
@@ -52,6 +52,8 @@ export default function TerminalComponent() {
     const stateRef = useRef<GameState>(createInitialState());
     const inputRef = useRef<string>("");
     const tickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const bootStartedRef = useRef(false);
+
     const ambientIdxRef = useRef<Record<Phase, number>>({
         boot: 0, normal: 0, awareness: 0, hunt: 0, ending: 0,
     });
@@ -77,16 +79,17 @@ export default function TerminalComponent() {
     }, []);
 
     const showPrompt = useCallback(() => {
+        const audio = getAudio(); 
         const phase = currentPhase(stateRef.current);
         if (phase === "hunt" || phase === "ending") {
             w(`${red}${bold}!!${reset} `);
-            audio.volume = 0.7;
+            if (audio) audio.volume = 0.7;
         } else if (phase === "awareness") {
             w(`${yellow}?>${reset} `);
-            audio.volume = 0.45
+            if (audio) audio.volume = 0.45
         } else {
             w(`> `);
-            audio.volume = 0.25
+            if (audio) audio.volume = 0.25
         }
     }, []);
 
@@ -140,6 +143,7 @@ export default function TerminalComponent() {
                 setTimeout(() => wl(text), ms);
             }
             setTimeout(() => setShowJumpscare(true), ms + 200);
+            return;
         }
 
         if(outcome === "win") {
@@ -186,13 +190,14 @@ export default function TerminalComponent() {
     }, [showPrompt]);
 
     const runBoot = useCallback(async () => {
+        if (bootStartedRef.current) return;
+        bootStartedRef.current = true;
+
         const term = termRef.current;
         if (!term) return;
 
-        let ms = 0;
         for (const {text, delay} of boot) {
-            ms += delay;
-            await new Promise<void>((r) => setTimeout(r, ms));
+            await new Promise<void>((r) => setTimeout(r, delay));
             term.writeln(text);
         }
 
@@ -200,7 +205,6 @@ export default function TerminalComponent() {
         stateRef.current = {...stateRef.current, phase: "normal"};
         showPrompt();
         scheduleTick();
-        audio.play()
     }, [showPrompt, scheduleTick]);
 
     const handleJumpscareEnd = useCallback(() => {
