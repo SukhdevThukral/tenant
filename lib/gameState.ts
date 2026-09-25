@@ -19,6 +19,7 @@ export interface GameState {
     deadCameras: Set<string>;
     gameOver: boolean;
     gameWon: boolean;
+    prevEntityZone: string,
 }
 
 export const BUILDING: Record<string, SensorZone> = {
@@ -48,6 +49,7 @@ export function createInitialState(): GameState {
         deadCameras: new Set(),
         gameOver: false,
         gameWon: false,
+        prevEntityZone: "",
     };
 }
 
