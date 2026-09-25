@@ -53,7 +53,7 @@ function cmdStatus(state: GameState): CmdResult {
     const threat = 
         phase === "normal"     ? "low"  :
         phase === "awareness"  ? "elevated":
-        phase === "hunt"       ? "!! HIGHH" : "!! CRITICAL";
+        phase === "hunt"       ? "!! HIGH" : "!! CRITICAL";
 
     return {
         lines: [
@@ -211,7 +211,7 @@ function cmdLock(zoneId: string, state: GameState): CmdResult {
 function cmdUnlock(zoneId: string, state: GameState): CmdResult {
     const zone = BUILDING[zoneId];
     if (!zone) return {lines: [`    Zone not found: ${zoneId}.`]};
-    if (!state.lockedDoors.has(zoneId)) return {lines: [`    ${zone.name} - not found`]};
+    if (!state.lockedDoors.has(zoneId)) return {lines: [`    ${zone.name} - not locked`]};
     
     const newLocked = new Set(state.lockedDoors);
     newLocked.delete(zoneId);
@@ -239,7 +239,7 @@ function cmdHelp(): CmdResult {
             "   ——————————————————————————————————————————————————————————————",
             "   Zone IDs:",
             "   roof stairwell_5  hallway_4  office_4a",
-            "   stairell_3  hallway_2  storage_2a  stairwell_1",
+            "   stairwell_3  hallway_2  storage_2a  stairwell_1",
             "   lobby   basement_stair  basement",
             "",
         ],
