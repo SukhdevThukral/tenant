@@ -57,7 +57,7 @@ function cmdStatus(state: GameState): CmdResult {
 
     return {
         lines: [
-            "   _____________________________",
+            "   ————————————————————————————————————",
             `   Threat level     ${threat}`,
             `   Your location    ${BUILDING[state.playerZone]?.name ?? state.playerZone}`,
             `   Cameras online   ${cams} / ${total}`,
@@ -67,13 +67,13 @@ function cmdStatus(state: GameState): CmdResult {
                 ? ["", `    !! Entity ${dist} zone${dist === 1 ? "" : "s"} from your position !! `]
                 : []
             ),
-            "   _____________________________"
+            "   ———————————————————————————————————"
         ],
     };
 }
 
 function cmdScan(state: GameState): CmdResult {
-    const lines = ["    MOTION SWEEP", "    _____________________________"];
+    const lines = ["    MOTION SWEEP", "   ———————————————————————————————"];
     for (const zone of Object.values(BUILDING)) {
         const hasEntity = state.entityZone === zone.id;
         const camDead = state.deadCameras.has(zone.id);
@@ -85,7 +85,7 @@ function cmdScan(state: GameState): CmdResult {
 }
 
 function cmdCameraList(state: GameState): CmdResult {
-    const lines = ["    CAMERA INDEX", "    _____________________________"];
+    const lines = ["    CAMERA INDEX", "   ———————————————————————————————"];
     for (const zone of Object.values(BUILDING)) {
         const dead = state.deadCameras.has(zone.id);
         const entity = state.entityZone === zone.id && !dead;
@@ -159,7 +159,7 @@ function cmdMap(state: GameState): CmdResult {
     return {
         lines: [
             "   E=entity Y=you ███=locked ░░░=dead cam",
-            "   _______________________________________",
+            "   ————————————————————————————————————————————————————————————————————————",
             `   F5 [${e("roof")}ROOF        ]-[${e("stairwelll_5")}STAIR-5F]`,
             `                               |`,
             `   F4          [${e("hallway_4")}HALL-4F]-[${e("office_4a")}OFFICE-4A]`,
@@ -179,7 +179,7 @@ function cmdMap(state: GameState): CmdResult {
 }
 
 function cmdDoors(state: GameState): CmdResult {
-    const lines = ["    DOOR STATUS", " ________________________________"];
+    const lines = ["    DOOR STATUS", " ————————————————————————————————"];
     for (const zone of Object.values(BUILDING)) {
         const locked = state.lockedDoors.has(zone.id);
         lines.push(`    ${locked ? "[LOCKED]" : "[open]  "} ${zone.id.padEnd(20)} ${zone.name}`);
@@ -226,7 +226,7 @@ function cmdHelp(): CmdResult {
     return {
         lines: [
             "   COMMANDS",
-            "   __________________________________________________________",
+            "   ——————————————————————————————————————————————————————————————",
             "   status                          System Overview",
             "   scan                            Motion sweep, all zones",
             "   cameras                         Camera feed list",
@@ -236,6 +236,7 @@ function cmdHelp(): CmdResult {
             "   lock <zone_id>                  Engage lock",
             "   unlock <zone_id>                Release lock",
             "",
+            "   ——————————————————————————————————————————————————————————————",
             "   Zone IDs:",
             "   roof stairwell_5  hallway_4  office_4a",
             "   stairell_3  hallway_2  storage_2a  stairwell_1",
