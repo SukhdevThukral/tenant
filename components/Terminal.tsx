@@ -17,14 +17,13 @@ import {tick_ms, FG, doTick} from "@/lib/gameEngine";
 import { runCommand } from "@/lib/commands";
 import { boot,breachLines, lose_lines } from "@/lib/narrative";
 
+import { audio } from "@/lib/audio";
+
 const esc = (code: string) => `\x1b[${code}m`;
 const red = esc("31");
 const yellow = esc("33");
 const reset = esc("0");
 const bold = esc("1");
-const audio = new Audio("/ambient_music.mp3")
-audio.loop = true;
-audio.volume = 0.25;
 
 function triggerGlitch(el: HTMLElement | null, type: "soft" | "mid" | "hard") {
     if (!el) return;
