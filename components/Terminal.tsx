@@ -260,9 +260,23 @@ export default function TerminalComponent() {
 
         const handleResize = () => requestAnimationFrame(() => fitAddon.fit());
         window.addEventListener("resize", handleResize);
+
+        const flicker = setInterval(() => {
+            if (!crtRef.current) return;
+            const el = crtRef.current;
+
+            const flashes = Math.floor(Math.random() * 4) +2;
+            for (let i = 0; i < flashes; i++) {
+                const offset = i* (60 + Math.random() * 60);
+                setTimeout(() => el.classList.add("js-flash"), offset);
+                setTimeout(() => el.classList.remove("js-flash"), offset + 80);
+            }
+        }, 600 + Math.random() * 1200);
+
         requestAnimationFrame(() => runBoot());
 
         return () => {
+            clearInterval(flicker)
             window.removeEventListener("resize", handleResize);
             if (tickTimerRef.current) clearTimeout(tickTimerRef.current);
             term.dispose();
