@@ -20,7 +20,7 @@ export default function EndScreen({type, onRestart}: Props) {
         "",
         "       6:00 —— Day shift arrived.",
         "",
-        "       Terminl had been running for hours.",
+        "       Terminal had been running for hours.",
         "       All basement locks: engaged.",
         "       No breach recorded.",
         "",
@@ -70,7 +70,6 @@ export default function EndScreen({type, onRestart}: Props) {
     }, [onRestart]);
 
     const fg = isWin? "#7ecfed" : "#ff4444";
-    const border = isWin ? "##7ecfed" : "#ff444444";
     const glow = isWin ? "#7ecfed22" : "#ff000022";
     
     return (
