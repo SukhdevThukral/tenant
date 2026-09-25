@@ -52,7 +52,6 @@ export default function TerminalComponent({onEnd}: Props) {
     const containerRef = useRef<HTMLDivElement>(null);
     const crtRef = useRef<HTMLDivElement>(null);
     const termRef = useRef<Terminal | null>(null);
-    const fitRef = useRef<FitAddon | null>(null);
     const stateRef = useRef<GameState>(createInitialState());
     const inputRef = useRef<string>("");
     const tickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
