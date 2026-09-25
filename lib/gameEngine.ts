@@ -47,11 +47,15 @@ export function doTick(
         if(alts.length === 0) {
             return {
                 newState: {...state, currentTick: state.currentTick + 1},
-                linesToPrint: [],
+                linesToPrint: ["", "    Entity contained. All exits sealed.", "", ...win_lines],
+                outcome: "win",
             };
         }
-        const alt = alts[0];
-        const newState = {...state, entityZone: alt, currentTick: state.currentTick+1};
+
+        const nonBackTrack = alts.filter(z=> z !== state.prevEntityZone);
+        const alt = nonBackTrack.length > 0 ? nonBackTrack[0] : alts[0];
+
+        const newState = {...state, entityZone: alt, prevEntityZone: state.entityZone, currentTick: state.currentTick+1};
         const dist = distanceTo(alt, state.playerZone);
         const lines = entityMoveLOG(alt, dist, !state.deadCameras.has(alt), false);
         return { newState, linesToPrint: lines};
@@ -68,16 +72,15 @@ export function doTick(
         ...state, entityZone: nextZone,
         deadCameras: newDead,
         currentTick: state.currentTick + 1,
+        prevEntityZone: state.entityZone,
     };
 
-    if (
-        newState.lockedDoors.has("lobby") &&
-        newState.lockedDoors.has("basement_stair") && 
-        newState.currentTick > 0
-    ) {
+    const blockedPath = bfsPath(newState.entityZone, newState.playerZone);
+    const canReach = blockedPath.some((z) => !newState.lockedDoors.has(z));
+    if (blockedPath.length > 0 && !canReach) {
         return {
             newState: {...newState, gameWon: true},
-            linesToPrint: ["", "    All locks holding.", "", ...win_lines],
+            linesToPrint: ["","    All paths blocked.", "", ...win_lines],
             outcome: "win",
         };
     }
