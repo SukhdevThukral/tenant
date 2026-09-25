@@ -16,37 +16,37 @@ export default function EndScreen({type, onRestart}: Props) {
 
     const lines = isWin ? [
         "",
-        "    ———————————————————————————————————————————————",
+        "——————————————————————————————————————————————————",
         "",
-        "   6:00 —— Day shift arrived.",
+        "       6:00 —— Day shift arrived.",
         "",
-        "   Terminl had been running for hours.",
-        "   All basement locks: engaged.",
-        "   No breach recorded.",
+        "       Terminl had been running for hours.",
+        "       All basement locks: engaged.",
+        "       No breach recorded.",
         "",
-        "   Roof access door: found open.",
-        "   Building otherwise secure.",
+        "       Roof access door: found open.",
+        "       Building otherwise secure.",
         "",
-        "   Incident logged as mechanical fault.",
-        "   Case Closed.",
+        "       Incident logged as mechanical fault.",
+        "       Case Closed.",
         "",
-        "    ———————————————————————————————————————————————",
+        "——————————————————————————————————————————————————",
         "",
     ] : [
         "",
-        "    ———————————————————————————————————————————————",
+        "——————————————————————————————————————————————————",
         "",
-        "   SHIFT LOG TERMINATED    04:17",
-        "   OPERATOR: MAINT-7       NO RESPONSE",
+        "       SHIFT LOG TERMINATED    04:17",
+        "       OPERATOR: MAINT-7       NO RESPONSE",
         "",
-        "   Morning crew found the door open.",
-        "   Terminal was still running.",
-        "   Cursor still blinking.",
+        "       Morning crew found the door open.",
+        "       Terminal was still running.",
+        "       Cursor still blinking.",
         "",
-        "   Cause of incident: unknown.",
-        "   Case: Open.",
+        "       Cause of incident: unknown.",
+        "       Case: Open.",
         "",
-        "    ———————————————————————————————————————————————",
+        "——————————————————————————————————————————————————",
         "",
     ];
 
@@ -71,5 +71,36 @@ export default function EndScreen({type, onRestart}: Props) {
 
     const fg = isWin? "#7ecfed" : "#ff4444";
     const border = isWin ? "##7ecfed" : "#ff444444";
-    const glow = 
+    const glow = isWin ? "#7ecfed22" : "#ff000022";
+    
+    return (
+        <div style={{position:"fixed", inset:0, zIndex: 7000, background: "#000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+            fontFamily: "Courier New, monospace", opacity, transition: "opacity 2s cubic-bezier(0.4, 0, 0.2, 1)",
+            boxShadow: `inset 0 0 120px ${glow}`,
+        }}>
+            <div style={{position: "absolute", inset: 0, background: "repeating-linear-gradient(to-bottom, transparent 0px, transparent 2px, rgba(0,0,0,0.2) 2px, rgba(0,0,0,0.2) 4px)", pointerEvents: "none", zIndex: 1}}/>
+            <div style={{position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, transparent 50%,  rgba(0,0,0,0.9) 100%)", pointerEvents: "none", zIndex: 2}}/>
+
+            <div style={{position: "relative", zIndex: 10, maxWidth: 560, width: "100%"}}>
+                {lines.map((line, i) => (
+                    <div key={i} style={{
+                        color: fg, fontSize: "0.9rem", lineHeight: 2, letterSpacing: "0.05em", whiteSpace: "pre",
+                    }}>
+                        {line}
+                    </div>
+                ))}
+
+                {showRestart && (
+                    <div style={{
+                        marginTop: "1.5rem",
+                        color: fg, fontSize: "0.85rem", letterSpacing: "0.15em", opacity: blink ? 1 : 0,
+                        transition: "opacity 0.1s",
+                        cursor: "pointer", paddingLeft: "1.5rem"
+                    }} onClick={onRestart}>
+                        PRESS R TO RESTART
+                    </div>
+                )}
+            </div>
+        </div>
+    );
 }
