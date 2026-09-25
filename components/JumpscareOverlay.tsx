@@ -87,8 +87,28 @@ export default function JumpscareOverlay({onEnd}: Props) {
                         }}/>
                     )}
                 </div>
+
+                <div style={{padding: "5px 10px", borderTop: "1px solid #330000", display: "flex", gap: 16, fontFamily: "Courier New, monospace",}}>
+                    <span style={{color: "#ff4444", fontSize: 11, animation: "blink 1s infinite"}}> ● REC</span>
+                    <span style={{color: "#555", fontSize: 11}}>04:17:33</span>
+                    <span style={{color: "#ff3333", fontSize: 11, marginLeft: "auto"}}> !! SIGNAL DEGRADED</span> 
+                </div>
             </div>
 
+            <style>{`
+                @keyframes jumpIn {
+                    from {opacity: 0;}
+                    to {opacity: 1;}
+                }
+                @keyframes popIn {
+                    from {transform: scale(0.55); opacity: 0;}
+                    to {transform: scale(1); opacity: 1;}
+                }
+                @keyframes blink {
+                    0%, 100% {opacity: 1} 50% {opacity:0.15}
+                }
+            `}
+            </style>
         </div>
     );
 }
