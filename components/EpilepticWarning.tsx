@@ -7,11 +7,15 @@ interface Props {
 }
 
 export default function EpilepticWarning({onAccept}: Props) {
-    const [visible, setVisible] = useState(true);
     const [glitching, setGlitching] = useState(false);
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [opacity, setOpacity] = useState(1);
+    const [opacity, setOpacity] = useState(0);
     const animRef = useRef<number>(0);
+
+    useEffect(() => {
+        const t = setTimeout(() => setOpacity(1), 100);
+        return () => clearTimeout(t);
+    }, [])
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -49,7 +53,7 @@ export default function EpilepticWarning({onAccept}: Props) {
     useEffect(() => {
         const t = setTimeout(() => {
             setOpacity(0);
-            setTimeout(onAccept, 800);
+            setTimeout(onAccept, 2000);
         }, 5000);
         return () => clearTimeout(t);
     }, [onAccept]);
@@ -64,7 +68,7 @@ export default function EpilepticWarning({onAccept}: Props) {
             alignItems: "center",
             justifyContent: "center",
             overflow: "hidden",
-            fontFamily: "Courier New, monospace", opacity: opacity, transition: "opacity 0.8s ease", animation: "fadeIn 1.2s ease forwards",
+            fontFamily: "Courier New, monospace", opacity: opacity, transition: "opacity 2s cubic-bezier(0.4, 0, 0.2, 1)",
         }}>
             <canvas ref={canvasRef} style={{ position: "absolute", inset:0, pointerEvents: "none", zIndex: 1, mixBlendMode: "overlay",}}/>
             <div style={{position: "absolute", inset: 0, background: "repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.4) 3px, rgba(0,0,0,0.4) 4px)", pointerEvents: "none", zIndex:2,}}/>
@@ -84,7 +88,7 @@ export default function EpilepticWarning({onAccept}: Props) {
                             ❗❗ PHOTOSENSITIVITY WARNING ❗❗
                         </div>
                         <div style={{
-                            position: "absolute", inset: "2.5rem", color: "00ffff44", fontSize: "0.85rem", lineHeight: 2, transform: "translate(4px, -1px)", pointerEvents: "none", letterSpacing: "0.1em",
+                            position: "absolute", inset: "2.5rem", color: "#00ffff44", fontSize: "0.85rem", lineHeight: 2, transform: "translate(4px, -1px)", pointerEvents: "none", letterSpacing: "0.1em",
                         }}>❗❗ PHOTOSENSITIVITY WARNING ❗❗ </div>
                     </>
                 )}
@@ -105,10 +109,6 @@ export default function EpilepticWarning({onAccept}: Props) {
             </div>
 
             <style>{`
-                @keyframes fadeIn {
-                    from {opacity:0;}
-                    to {opacity:1;}
-                }
                 @keyframes warnFlicker {
                     0%, 100% {opacity: 1;}
                     50% {opacity: 0.3;}
