@@ -12,6 +12,7 @@ export default function EpilepticWarning({onAccept}: Props) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [opacity, setOpacity] = useState(0);
     const animRef = useRef<number>(0);
+    const [flash, setFlash] = useState(false);
 
     useEffect(() => {
         const t = setTimeout(() => setOpacity(1), 100);
@@ -59,12 +60,18 @@ export default function EpilepticWarning({onAccept}: Props) {
 
         const glitchInterval = setInterval(() => {
             setGlitching(true);
-            setTimeout(() => setGlitching(false), 150 + Math.random() * 200);
-        }, 800 + Math.random() * 1200);
+            setTimeout(() => setGlitching(false), 80 + Math.random() * 100);
+        }, 300 + Math.random() * 400);
+
+        const flashInterval = setInterval(() => {
+            setFlash(true);
+            setTimeout(() => setFlash(false), 50 + Math.random() *80);
+        }, 500 + Math.random() * 700);
 
         return() => {
             cancelAnimationFrame(animRef.current);
             clearInterval(glitchInterval);
+            clearInterval(flashInterval);
         }
     }, []);
 
@@ -96,6 +103,11 @@ export default function EpilepticWarning({onAccept}: Props) {
                     pointerEvents: "none", zIndex: 3,
                 }
             }/>
+
+            {flash && (
+                <div style={{ position: "absolute", inset: 0, zIndex: 4, pointerEvents: "none", background: `rgba(255, ${Math.floor(Math.random()*30)}, ${Math.floor(Math.random()*30)}, ${0.1 + Math.random() * 0.25})`,}}/>
+            )}
+
             <div style={{position: "relative", zIndex: 10, maxWidth: 560, padding: "2.5rem",border:"1px solid #ff2222",
                 boxShadow: "0 0 30px #ff000044, inset 0 0 30px #ff000011", transform: glitching ? `translate(${(Math.random() - 0.5) * 12}px, ${(Math.random() - 0.5) * 6}px) skewX(${(Math.random() - 0.5) * 3}deg)` : "none",
                 transition: glitching ? "none" : " transform 0.05s", 
