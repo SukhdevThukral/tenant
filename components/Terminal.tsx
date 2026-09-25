@@ -59,6 +59,7 @@ export default function TerminalComponent() {
     });
     const bootDoneRef = useRef(false);
     const jumpscareShownRef = useRef(false);
+    const jumpscareActiveRef = useRef(false);
 
     const [showJumpscare, setShowJumpscare] = useState(false);
 
@@ -79,6 +80,7 @@ export default function TerminalComponent() {
     }, []);
 
     const showPrompt = useCallback(() => {
+        if (jumpscareActiveRef.current) return;
         const audio = getAudio(); 
         const phase = currentPhase(stateRef.current);
         if (phase === "hunt" || phase === "ending") {
@@ -129,6 +131,7 @@ export default function TerminalComponent() {
         const dist = distanceTo(newState.entityZone, newState.playerZone);
         if (dist === 1 && !jumpscareShownRef.current && !newState.gameOver && !newState.gameWon) {
             jumpscareShownRef.current = true;
+            jumpscareActiveRef.current = true;
             const fakeLines = [
                 { text: "", delay:0},
                 { text: "   [03:58] !! MOTION - BASEMENT", delay: 0},
@@ -208,6 +211,7 @@ export default function TerminalComponent() {
     }, [showPrompt, scheduleTick]);
 
     const handleJumpscareEnd = useCallback(() => {
+        jumpscareActiveRef.current = false;
         setShowJumpscare(false);
         setTimeout(() => {
             interruptPrint(["", "   !! FEED LOST - SIGNAL CORRUPTED", ""]);
